@@ -97,6 +97,7 @@ int main(int argc, char** argv) {
 	}
 	pid = ft_atoi(argv[1]);
     //result = kill(pid, SIGUSR1);
+	kill(pid, SIGUSR1);
 	ft_convert_bin(argv[1], pid);
     if (result == 0) {
 		write(1, "Signal envoyé avec succès\n", ft_strlen("Signal envoyé avec succès\n"));
