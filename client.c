@@ -32,12 +32,12 @@ void	ft_convert_bin(char *str, int pid)
 				if (res == 0)
 				{
 					kill(pid, SIGUSR1);
-					usleep(200);
+					usleep(300);
 				}
 				if (res == 1)
 				{
 					kill(pid, SIGUSR2);
-					usleep(200);
+					usleep(300);
 				}
 			}
 			j--;
@@ -96,13 +96,6 @@ int main(int argc, char** argv) {
 		exit(EXIT_FAILURE);
 	}
 	pid = ft_atoi(argv[1]);
-    //result = kill(pid, SIGUSR1);
-	kill(pid, SIGUSR1);
-	ft_convert_bin(argv[1], pid);
-    if (result == 0) {
-		write(1, "Signal envoyé avec succès\n", ft_strlen("Signal envoyé avec succès\n"));
-    } else {
-        write(1, "Erreur lors de l'envoi du signal\n", ft_strlen("Erreur lors de l'envoi du signal\n"));
-    }
+	ft_convert_bin(argv[2], pid);
     return 0;
 }
