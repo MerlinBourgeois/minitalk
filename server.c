@@ -1,7 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   server.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mebourge <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/01/07 14:07:09 by mebourge          #+#    #+#             */
+/*   Updated: 2023/01/07 14:30:26 by mebourge         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <signal.h>
-#include <stdio.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 size_t	ft_strlen(const char *s)
 {
@@ -15,21 +25,6 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-void binary_to_char(char *binary)
-{
-    int i;
-	int value = 0;
-    int j;
-
-	i = 0;
-	j = 0;
-    while (j < 8)
-    {
-       value += (binary[i + j] - '0') << (7 - j);
-	   j++;
-    }
-	write(1, &value, 1);
-}
 void	ft_putchar_fd(char c, int fd)
 {
 	if (fd < 0)
@@ -62,40 +57,38 @@ void	ft_putnbr_fd(int n, int fd)
 	ft_putchar_fd((n % 10) + '0', fd);
 }
 
-void sigusr1_handler(int sig)
+void	sigusr1_handler(int sig, siginfo_t *info, void *context)
 {
-	static int bit_i;
-	static char bits[7];
+	static int				i = 0;
+	static unsigned char	c = 0;
 
-	if (sig == SIGUSR1)
+	(void)context;
+	(void)info;
+	c |= (sig == SIGUSR2);
+	if (++i == 8)
 	{
-		bits[bit_i] = '0';
-		usleep(50);
-		bit_i++;
+		i = 0;
+		if (!c)
+			return ;
+		ft_putchar_fd(c, 1);
+		c = 0;
 	}
-	if (sig == SIGUSR2)
-	{
-		bits[bit_i] = '1';
-		usleep(50);
-		bit_i++;
-	}
-	if (bit_i == 8)
-	{
-		binary_to_char(bits);
-		bit_i = 0;
-	}
-	usleep(50);
+	else
+		c <<= 1;
 }
 
-int main(int argc, char** argv)
+int	main(void)
 {
+	struct sigaction	sa_signal;
+
 	write(1, "PID : ", 6);
 	ft_putnbr_fd(getpid(), 1);
 	write(1, "\n", 1);
+	sa_signal.sa_sigaction = sigusr1_handler;
+	sa_signal.sa_flags = SA_SIGINFO;
+	sigaction(SIGUSR1, &sa_signal, 0);
+	sigaction(SIGUSR2, &sa_signal, 0);
 	while (1)
-	{
-		signal(SIGUSR2, sigusr1_handler);
-		signal(SIGUSR1, sigusr1_handler);
-	}
-    return 0;
+		pause();
+	return (0);
 }
